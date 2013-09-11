@@ -55,6 +55,9 @@ Const REG_BLOCK_TIMEOUT = "BlockTimeout"
 ' Black hole IP address (if hard-specified)
 Const REG_BLACKHOLE_IP = "BlackholeIP"
 
+' Whitelist (Never Block these IP Addresses)
+Const REG_WHITELIST = "|127.0.0.1|127.0.0.5|"
+
 ' Usernames that attempted logons for result in immediate blocking
 Set dictBlockImmediatelyUsers = CreateObject("Scripting.Dictionary")
 dictBlockImmediatelyUsers.Add "administrator", 1
@@ -315,6 +318,10 @@ Sub eventSink_OnObjectReady(objEvent, objWbemAsyncContext)
 	
 	' Make sure only characters allowed in IP addresses are passed to external commands
 	IP = regexpSanitizeIP.Replace(IP, "")
+
+	If InStr(REG_WHITELIST, "|" & IP & "|") > 0 Then
+	    Exit Sub
+	  End If
 
 	' If the event didn't generate both a username and IP address then do nothing
 	If (IP <> "") AND (user <> "") Then
